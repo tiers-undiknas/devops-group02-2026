@@ -1,0 +1,26 @@
+# CODEOWNERS
+# DevOps Group 02 - 2026
+
+# Core API & Services
+/backend/src/routes/        @bliDedok @salsa-rgb
+/backend/src/services/      @bliDedok @salsa-rgb
+
+# Queue Worker, Database & Infrastructure
+/backend/src/worker.js      @salsa-rgb @troybhareswara
+/backend/src/db/            @salsa-rgb @troybhareswara
+/backend/src/infra/         @salsa-rgb @troybhareswara
+
+# Frontend SPA
+/frontend/                  @troybhareswara @rizkyandika171
+
+# Telemetry & Automated Testing
+/backend/src/telemetry/     @rizkyandika171 @bliDedok
+/backend/tests/             @rizkyandika171 @bliDedok
+/backend/vitest.config.js   @rizkyandika171 @bliDedok
+
+# Repository Governance
+/.github/                 @bliDedok @salsa-rgb
+/.husky/                  @bliDedok @salsa-rgb
+/commitlint.config.js     @bliDedok @salsa-rgb
+/package.json             @bliDedok @salsa-rgb
+/package-lock.json        @bliDedok @salsa-rgb
