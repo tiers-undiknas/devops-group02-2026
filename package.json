@@ -13,7 +13,8 @@
     "test:backend": "npm run test --prefix backend",
     "test:frontend": "npm run test --prefix frontend",
     "test": "npm run test:backend && npm run test:frontend",
-    "test:coverage": "npm run test:coverage --prefix backend"
+    "test:coverage": "npm run test:coverage --prefix backend",
+    "prepare": "husky"
   },
   "keywords": [
     "devops",
@@ -26,5 +27,10 @@
     "postgresql"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "husky": "^9.1.7"
+  }
 }
