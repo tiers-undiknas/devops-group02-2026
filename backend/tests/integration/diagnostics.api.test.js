@@ -36,6 +36,10 @@ describe('Chaos & Incident Injection API (Integration)', () => {
       expect(res.body.allocatedMb).toBe(5);
       expect(res.body.totalLeakedMb).toBe(initialSinkLength + 5);
       expect(res.body.heapUsedMb).toBeTypeOf('number');
+      expect(res.body.heapTotalMb).toBeTypeOf('number');
+      expect(res.body.heapUsagePercent).toBeTypeOf('number');
+      expect(res.body.heapUsagePercent).toBeGreaterThanOrEqual(0);
+      expect(res.body.heapUsagePercent).toBeLessThanOrEqual(100);
     });
   });
 
