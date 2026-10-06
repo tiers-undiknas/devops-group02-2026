@@ -12,7 +12,7 @@ export async function renderOrders(container) {
         <p class="page-subtitle">Submit new orders, inspect event logs, and trace transaction lifecycles</p>
       </div>
       <div>
-        <button id="btn-toggle-form" class="btn btn-primary">
+        <button id="btn-toggle-form" class="btn btn-primary" style="background-color: #10B981; border-color: #059669;">
           + New Order
         </button>
       </div>
@@ -314,8 +314,8 @@ async function inspectOrder(id) {
           </thead>
           <tbody>
             ${lineItems
-              .map(
-                (item) => `
+        .map(
+          (item) => `
               <tr>
                 <td style="font-family: var(--font-mono); font-size: 0.85rem;">${escapeHtml(item.sku)}</td>
                 <td>${escapeHtml(item.name)}</td>
@@ -324,31 +324,30 @@ async function inspectOrder(id) {
                 <td style="font-family: var(--font-mono);">Rp ${Number(item.price * item.quantity).toLocaleString('id-ID')}</td>
               </tr>
             `
-              )
-              .join('')}
+        )
+        .join('')}
           </tbody>
         </table>
       </div>
 
       <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--text-secondary);">Event History & State Machine Audit</h4>
       <div class="timeline">
-        ${
-          events.length === 0
-            ? '<p style="color: var(--text-muted);">No events recorded</p>'
-            : events
-                .map(
-                  (ev) => `
+        ${events.length === 0
+        ? '<p style="color: var(--text-muted);">No events recorded</p>'
+        : events
+          .map(
+            (ev) => `
               <div class="timeline-item">
                 <div class="timeline-title">${ev.event_type}</div>
                 <div class="timeline-meta">${new Date(ev.created_at).toLocaleString()}</div>
                 <pre style="margin-top: 0.35rem; font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; overflow-x: auto;">${escapeHtml(
-                  typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload, null, 2)
-                )}</pre>
+              typeof ev.payload === 'string' ? ev.payload : JSON.stringify(ev.payload, null, 2)
+            )}</pre>
               </div>
             `
-                )
-                .join('')
-        }
+          )
+          .join('')
+      }
       </div>
     `;
   } catch (err) {
