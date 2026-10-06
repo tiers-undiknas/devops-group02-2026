@@ -4,20 +4,34 @@ import redis from '../infra/redis.js';
 
 const router = Router();
 
+const bytesToMb = (bytes) =>
+  Math.round((bytes / 1024 / 1024) * 100) / 100;
+
 /**
  * Liveness Probe: GET /healthz/live
  * Evaluates whether the Node.js process and event loop are responsive.
  */
 router.get('/live', (req, res) => {
   const mem = process.memoryUsage();
+
+  const heapUsedMb = bytesToMb(mem.heapUsed);
+  const heapTotalMb = bytesToMb(mem.heapTotal);
+
+  const heapUsagePercent =
+    mem.heapTotal > 0
+      ? Math.round((mem.heapUsed / mem.heapTotal) * 10000) / 100
+      : 0;
+
   res.status(200).json({
     status: 'UP',
     uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
     pid: process.pid,
     memory: {
-      rssMb: Math.round((mem.rss / 1024 / 1024) * 100) / 100,
-      heapUsedMb: Math.round((mem.heapUsed / 1024 / 1024) * 100) / 100
+      rssMb: bytesToMb(mem.rss),
+      heapUsedMb,
+      heapTotalMb,
+      heapUsagePercent
     }
   });
 });
