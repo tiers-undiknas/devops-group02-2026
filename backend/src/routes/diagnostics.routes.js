@@ -54,7 +54,18 @@ router.post('/memory-leak', (req, res) => {
   }
 
   const mem = process.memoryUsage();
-  const heapUsedMb = Math.round((mem.heapUsed / 1024 / 1024) * 100) / 100;
+
+  const heapUsedMb =
+  Math.round((mem.heapUsed / 1024 / 1024) * 100) / 100;
+
+  const heapTotalMb =
+  Math.round((mem.heapTotal / 1024 / 1024) * 100) / 100;
+
+  const heapUsagePercent =
+  mem.heapTotal > 0
+    ? Math.round((mem.heapUsed / mem.heapTotal) * 10000) / 100
+    : 0;
+
   const totalLeakedMb = memoryLeakSink.length;
 
   logger.warn({ totalLeakedMb, heapUsedMb }, 'Chaos: Memory leaked into global sink');
@@ -64,7 +75,8 @@ router.post('/memory-leak', (req, res) => {
     allocatedMb: sizeMb,
     totalLeakedMb,
     heapUsedMb,
-    heapTotalMb: Math.round((mem.heapTotal / 1024 / 1024) * 100) / 100
+    heapTotalMb,
+    heapUsagePercent
   });
 });
 
