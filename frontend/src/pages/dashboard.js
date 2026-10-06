@@ -8,7 +8,11 @@ export async function renderDashboard(container) {
         <h1 class="page-title">Operations Dashboard</h1>
         <p class="page-subtitle">Real-time status of the Order Processing Engine & Dependencies</p>
       </div>
-      <div>
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <button id="btn-refresh-health" class="btn btn-outline">
+          Refresh System Status
+        </button>
+
         <button id="btn-quick-order" class="btn btn-primary">
           + Create Sample Order
         </button>
@@ -75,6 +79,19 @@ export async function renderDashboard(container) {
       </div>
     </div>
   `;
+
+  // Attach refresh health button
+  const refreshHealthBtn =
+  document.getElementById('btn-refresh-health');
+
+  refreshHealthBtn?.addEventListener('click', async () => {
+    await loadDashboardData();
+
+    showToast(
+      'System status refreshed successfully',
+      'success'
+    );
+  });
 
   // Attach quick sample order button
   const quickOrderBtn = document.getElementById('btn-quick-order');
