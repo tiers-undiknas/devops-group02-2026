@@ -10,6 +10,18 @@ const router = Router();
  */
 router.get('/live', (req, res) => {
   const mem = process.memoryUsage();
+
+  const heapUsedMb =
+    Math.round((mem.heapUsed / 1024 / 1024) * 100) / 100;
+
+  const heapTotalMb =
+    Math.round((mem.heapTotal / 1024 / 1024) * 100) / 100;
+
+  const heapUsagePercent =
+    mem.heapTotal > 0
+      ? Math.round((mem.heapUsed / mem.heapTotal) * 10000) / 100
+      : 0;
+
   res.status(200).json({
     status: 'UP',
     uptimeSeconds: Math.floor(process.uptime()),
@@ -17,7 +29,9 @@ router.get('/live', (req, res) => {
     pid: process.pid,
     memory: {
       rssMb: Math.round((mem.rss / 1024 / 1024) * 100) / 100,
-      heapUsedMb: Math.round((mem.heapUsed / 1024 / 1024) * 100) / 100
+      heapUsedMb,
+      heapTotalMb,
+      heapUsagePercent
     }
   });
 });
