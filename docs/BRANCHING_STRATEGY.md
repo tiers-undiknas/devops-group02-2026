@@ -225,6 +225,21 @@ Keuntungan utama pendekatan ini untuk monorepo kelompok:
 7. Risiko Merge Debt lebih rendah.
 8. LTTC lebih pendek dibanding alur dengan banyak branch permanen.
 
+Pembatasan perubahan hingga idealnya ≤400 baris juga berkaitan dengan
+pengendalian Change Failure Rate (CFR). Semakin besar sebuah Pull Request,
+semakin banyak logic, dependensi, dan kemungkinan interaksi antarmodul
+yang harus diperiksa dalam satu proses review. Hal tersebut meningkatkan
+beban kognitif reviewer dan memperbesar kemungkinan defect tidak
+terdeteksi sebelum perubahan masuk ke `main`.
+
+Sebaliknya, perubahan yang kecil dan terfokus membuat reviewer lebih mudah
+memahami tujuan perubahan, mengevaluasi dampaknya, dan memastikan test yang
+dijalankan relevan dengan behavior yang dimodifikasi. Jika kegagalan tetap
+terjadi, scope perubahan yang kecil juga memudahkan identifikasi penyebab
+dan proses rollback. Dengan demikian, batas ≤400 baris bukan hanya
+bertujuan mempercepat review, tetapi juga menjadi mekanisme pengendalian
+risiko untuk membantu menekan Change Failure Rate.
+
 ---
 
 # 5. SOP Short-Lived Branches
