@@ -1,0 +1,43 @@
+services:
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+
+    command: ["npm", "start"]
+
+    env_file:
+      - ../.env
+
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3000"
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+
+    command: ["npm", "run", "start:worker"]
+
+    env_file:
+      - ../.env
+
+    environment:
+      NODE_ENV: production
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
