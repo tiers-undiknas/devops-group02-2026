@@ -1,3 +1,7 @@
+# Pembagian pengerjaan Docker Compose:
+# Salsabila Nur Shafa: PostgreSQL, Redis, layanan frontend,
+#            volume pgdata, jaringan app-net, dan contoh konfigurasi lingkungan.
+# I Made Dedy Wanditya: layanan API dan worker, serta integrasi konfigurasi Compose.
 name: uts-devops
 
 services:
