@@ -18,9 +18,9 @@ describe('Order Service (Unit Tests)', () => {
   });
 
   describe('calculateTotal()', () => {
-    it('should return 0 values for empty array', () => {
-      const result = calculateTotal([]);
-      expect(result).toEqual({ subtotal: 0, tax: 0, total: 0 });
+    it('should throw an error for non-numeric quantity', () => {
+      const items = [{ sku: 'ITEM-NAN', name: 'Bad Qty', price: 100, quantity: 'abc' }];
+      expect(() => calculateTotal(items)).toThrow(AppError);
     });
 
     it('should return 0 values for non-array input', () => {
@@ -175,51 +175,82 @@ describe('Order Service (Unit Tests)', () => {
   });
 
   describe('listOrders()', () => {
-    it('should query orders with pagination and return structured result', async () => {
+        it('should fall back to default page and limit when values are not numeric', async () => {
       mockPool.query
-        .mockResolvedValueOnce({ rows: [{ count: '25' }] })
-        .mockResolvedValueOnce({ rows: [{ id: 'order-1' }, { id: 'order-2' }] });
+        .mockResolvedValueOnce({ rows: [{ count: '0' }] })
+        .mockResolvedValueOnce({ rows: [] });
 
-      const res = await orderService.listOrders({ page: 2, limit: 10 });
-      expect(res.pagination.total).toBe(25);
-      expect(res.pagination.page).toBe(2);
+      const res = await orderService.listOrders({ page: 'abc', limit: 'xyz' });
+
+      expect(res.pagination.page).toBe(1);
       expect(res.pagination.limit).toBe(10);
-      expect(res.pagination.totalPages).toBe(3);
-      expect(res.data).toHaveLength(2);
+      expect(res.pagination.totalPages).toBe(0);
+      expect(mockPool.query.mock.calls[1][1]).toEqual([10, 0]);
     });
 
-    it('should filter by status when provided', async () => {
+    it('should treat zero page and limit as default values', async () => {
       mockPool.query
-        .mockResolvedValueOnce({ rows: [{ count: '5' }] })
-        .mockResolvedValueOnce({ rows: [{ id: 'order-confirmed', status: 'confirmed' }] });
+        .mockResolvedValueOnce({ rows: [{ count: '4' }] })
+        .mockResolvedValueOnce({ rows: [] });
 
-      const res = await orderService.listOrders({ status: 'confirmed' });
-      expect(res.pagination.total).toBe(5);
-      expect(res.data[0].status).toBe('confirmed');
+      const res = await orderService.listOrders({ page: 0, limit: 0 });
+
+      expect(res.pagination.page).toBe(1);
+      expect(res.pagination.limit).toBe(10);
+    });
+
+    it('should cap limit at 100 and compute the correct offset', async () => {
+      mockPool.query
+        .mockResolvedValueOnce({ rows: [{ count: '250' }] })
+        .mockResolvedValueOnce({ rows: [] });
+
+      const res = await orderService.listOrders({ page: 2, limit: 500 });
+
+      expect(res.pagination.limit).toBe(100);
+      expect(res.pagination.totalPages).toBe(3);
+      expect(mockPool.query.mock.calls[1][1]).toEqual([100, 100]);
+    });
+
+    it('should use default pagination when called without arguments', async () => {
+      mockPool.query
+        .mockResolvedValueOnce({ rows: [{ count: '3' }] })
+        .mockResolvedValueOnce({ rows: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] });
+
+      const res = await orderService.listOrders();
+
+      expect(res.pagination).toEqual({ total: 3, page: 1, limit: 10, totalPages: 1 });
+      expect(res.data).toHaveLength(3);
+    });
+
+    it('should pass status, limit, and offset as query parameters', async () => {
+      mockPool.query
+        .mockResolvedValueOnce({ rows: [{ count: '1' }] })
+        .mockResolvedValueOnce({ rows: [{ id: 'order-1', status: 'confirmed' }] });
+
+      await orderService.listOrders({ status: 'confirmed', page: 1, limit: 10 });
+
+      expect(mockPool.query.mock.calls[0][1]).toEqual(['confirmed']);
+      expect(mockPool.query.mock.calls[1][1]).toEqual(['confirmed', 10, 0]);
     });
   });
 
   describe('updateOrderStatus()', () => {
-    it('should update status and record an event', async () => {
-      const updatedOrder = {
+     it('should store the failure reason in the order event payload', async () => {
+      const failedOrder = {
         id: 'a0000000-0000-4000-a000-000000000000',
-        status: 'confirmed',
-        failure_reason: null
+        status: 'failed',
+        failure_reason: 'Payment declined'
       };
 
       mockPool.query
-        .mockResolvedValueOnce({ rows: [updatedOrder] }) // Update orders
-        .mockResolvedValueOnce({ rows: [] }); // Insert order_events
+        .mockResolvedValueOnce({ rows: [failedOrder] })
+        .mockResolvedValueOnce({ rows: [] });
 
-      const result = await orderService.updateOrderStatus(
-        updatedOrder.id,
-        'confirmed',
-        null,
-        { worker: 'worker-1' }
-      );
+      await orderService.updateOrderStatus(failedOrder.id, 'failed', 'Payment declined', { worker: 'worker-1' });
 
-      expect(result).toEqual(updatedOrder);
-      expect(mockPool.query).toHaveBeenCalledTimes(2);
+      const eventParams = mockPool.query.mock.calls[1][1];
+      expect(eventParams[1]).toBe('STATUS_FAILED');
+      expect(JSON.parse(eventParams[2])).toEqual({ failureReason: 'Payment declined', worker: 'worker-1' });
     });
 
     it('should throw 404 AppError if order does not exist', async () => {
