@@ -1,0 +1,75 @@
+name: CI Quality Pipeline (Lab 3 & Lab 4)
+
+# Pemicu otomatis setiap kali terjadi push
+# atau pull_request menuju cabang main
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  # ==========================================================
+  # JOB 1: BACKEND LINTING, UNIT TEST, & INTEGRATION TEST
+  # ==========================================================
+  backend-ci:
+    name: Backend Lint, Vitest, & Coverage Gate
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24 with npm Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Backend Dependencies (Clean Install)
+        run: npm ci
+
+      - name: Run ESLint Static Code Analysis
+        run: npx eslint src tests
+
+      - name: Execute Vitest Unit & Integration Tests with Coverage
+        run: npx vitest run --coverage
+
+  # ==========================================================
+  # JOB 2: FRONTEND LINTING, VITEST API TEST, & BUILD
+  # ==========================================================
+  frontend-ci:
+    name: Frontend Test & Vite Production Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24 with npm Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies (Clean Install)
+        run: npm ci
+
+      - name: Run Frontend ESLint
+        run: npx eslint src tests
+
+      - name: Execute Frontend Vitest API Tests
+        run: npx vitest run
+
+      - name: Build Frontend for Production
+        run: npm run build
