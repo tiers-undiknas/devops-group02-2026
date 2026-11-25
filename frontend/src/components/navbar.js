@@ -62,7 +62,7 @@ async function updateReadinessBadge() {
       badge.style.color = 'var(--accent-danger)';
       badge.style.borderColor = 'rgba(239, 68, 68, 0.25)';
     }
-  } catch (err) {
+  } catch {
     text.textContent = 'Offline';
     dot.className = 'status-dot down';
     badge.style.color = 'var(--accent-danger)';
