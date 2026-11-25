@@ -40,6 +40,27 @@ jobs:
       - name: Execute Vitest Unit & Integration Tests with Coverage
         run: npx vitest run --coverage
 
+      - name: Enforce Code Coverage Quality Gate (Threshold >= 70%)
+        id: coverage-gate
+        run: |
+          node -e "
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+            const pct = summary.total.statements.pct;
+            console.log('========================================================');
+            console.log('Statement Code Coverage Aktual : ' + pct + '%');
+            console.log('Ambang Batas Minimal (Quality Gate): 70.0%');
+            console.log('========================================================');
+            if (process.env.GITHUB_OUTPUT) {
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, 'coverage_pct=' + pct + '\n');
+            }
+            if (pct < 70.0) {
+              console.error('[QUALITY GATE FAILED] Coverage (' + pct + '%) di bawah ambang batas minimal 70.0%!');
+              process.exit(1);
+            }
+            console.log('[QUALITY GATE PASSED] Cakupan kode memenuhi standar minimal (>= 70.0%).');
+          "
+
   # ==========================================================
   # JOB 2: FRONTEND LINTING, VITEST API TEST, & BUILD
   # ==========================================================
@@ -68,8 +89,26 @@ jobs:
       - name: Run Frontend ESLint
         run: npx eslint src tests
 
-      - name: Execute Frontend Vitest API Tests
-        run: npx vitest run
+      - name: Execute Frontend Vitest Tests with Coverage
+        run: npx vitest run --coverage
+
+      - name: Enforce Frontend Coverage Quality Gate (Threshold >= 70%)
+        id: frontend-coverage-gate
+        run: |
+          node -e "
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+            const pct = summary.total.statements.pct;
+            console.log('========================================================');
+            console.log('[FRONTEND] Statement Code Coverage Aktual : ' + pct + '%');
+            console.log('[FRONTEND] Ambang Batas Minimal (Quality Gate): 70.0%');
+            console.log('========================================================');
+            if (pct < 70.0) {
+              console.error('[QUALITY GATE FAILED] Frontend coverage (' + pct + '%) di bawah ambang batas minimal 70.0%!');
+              process.exit(1);
+            }
+            console.log('[QUALITY GATE PASSED] Frontend coverage memenuhi standar minimal (>= 70.0%).');
+          "
 
       - name: Build Frontend for Production
         run: npm run build
