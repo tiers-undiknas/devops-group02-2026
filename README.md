@@ -2,7 +2,8 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-v24_LTS-green.svg)](https://nodejs.org/)
 [![Architecture](https://img.shields.io/badge/Architecture-Multi--Tier_%26_Multi--Process-blue.svg)](#architecture)
-[![Coverage](https://img.shields.io/badge/Coverage-≥75%25-brightgreen.svg)](#testing--code-coverage)
+[![CI](https://github.com/tiers-undiknas/devops-group02-2026/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tiers-undiknas/devops-group02-2026/actions/workflows/ci.yml)
+[![Backend Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FbliDedok%2Fc417a22bd35409b7bdfa52c5c622c80b%2Fraw%2Fcoverage.json)](https://gist.github.com/bliDedok/c417a22bd35409b7bdfa52c5c622c80b)
 [![Observability](https://img.shields.io/badge/Observability-Prometheus_%2B_Pino-orange.svg)](#observability--metrics)
 
 **Order Processing Engine** adalah aplikasi acuan (_Seed Project_) berstandar _production-grade_ untuk praktikum mata kuliah DevOps (Semester 5). Aplikasi ini dirancang sebagai target nyata untuk rekayasa infrastruktur, kontainerisasi, automasi CI/CD, DevSecOps, Infrastructure as Code (IaC), dan Observabilitas modern.
