@@ -12,7 +12,7 @@ RUN npm run build && find dist -name "*.map" -delete
 
 
 # 2. menjalankan hasil build pakai nginx
-FROM nginx:alpine-slim
+FROM nginx:1.27-alpine
 
 # ganti config bawaan nginx dengan config sendiri
 RUN rm -f /etc/nginx/conf.d/default.conf
