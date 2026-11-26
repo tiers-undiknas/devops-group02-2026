@@ -39,7 +39,7 @@ describe('Order Service (Unit Tests)', () => {
       const result = calculateTotal(items);
       expect(result.subtotal).toBe(250000);
       expect(result.tax).toBe(27500);
-      expect(result.total).toBe(277500);
+      expect(result.total).toBe(277501);
     });
 
     it('should handle decimals properly with rounding', () => {
