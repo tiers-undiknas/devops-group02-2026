@@ -1,7 +1,6 @@
 name: CI Quality Pipeline (Lab 3 & Lab 4)
 
-# Pemicu otomatis setiap kali terjadi push
-# atau pull_request menuju cabang main
+# Jalankan CI saat ada push atau pull request ke main
 on:
   push:
     branches: ["main"]
@@ -47,19 +46,37 @@ jobs:
             const fs = require('fs');
             const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
             const pct = summary.total.statements.pct;
+
             console.log('========================================================');
             console.log('Statement Code Coverage Aktual : ' + pct + '%');
             console.log('Ambang Batas Minimal (Quality Gate): 70.0%');
             console.log('========================================================');
+
             if (process.env.GITHUB_OUTPUT) {
               fs.appendFileSync(process.env.GITHUB_OUTPUT, 'coverage_pct=' + pct + '\n');
             }
+
             if (pct < 70.0) {
               console.error('[QUALITY GATE FAILED] Coverage (' + pct + '%) di bawah ambang batas minimal 70.0%!');
               process.exit(1);
             }
+
             console.log('[QUALITY GATE PASSED] Cakupan kode memenuhi standar minimal (>= 70.0%).');
           "
+
+      # Perbarui coverage.json di Gist setelah pemeriksaan backend di main berhasil
+      - name: Update Coverage Badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: c417a22bd35409b7bdfa52c5c622c80b
+          filename: coverage.json
+          label: Code Coverage
+          message: "${{ steps.coverage-gate.outputs.coverage_pct }}%"
+          minColorRange: 70
+          maxColorRange: 90
+          valColorRange: ${{ steps.coverage-gate.outputs.coverage_pct }}
 
   # ==========================================================
   # JOB 2: FRONTEND LINTING, VITEST API TEST, & BUILD
@@ -99,14 +116,17 @@ jobs:
             const fs = require('fs');
             const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
             const pct = summary.total.statements.pct;
+
             console.log('========================================================');
             console.log('[FRONTEND] Statement Code Coverage Aktual : ' + pct + '%');
             console.log('[FRONTEND] Ambang Batas Minimal (Quality Gate): 70.0%');
             console.log('========================================================');
+
             if (pct < 70.0) {
               console.error('[QUALITY GATE FAILED] Frontend coverage (' + pct + '%) di bawah ambang batas minimal 70.0%!');
               process.exit(1);
             }
+
             console.log('[QUALITY GATE PASSED] Frontend coverage memenuhi standar minimal (>= 70.0%).');
           "
 
